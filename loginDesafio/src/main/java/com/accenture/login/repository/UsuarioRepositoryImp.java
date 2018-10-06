@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.transaction.Transactional;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -18,7 +19,8 @@ import com.accenture.login.model.Usuario;
 
 @Repository("usuarioRepository")
 public class UsuarioRepositoryImp implements UsuarioRepository {
-
+	
+	final static Logger logger = Logger.getLogger(UsuarioRepositoryImp.class);
 	static final String CreateUsuario = "INSERT INTO usuario (id, created, modified, last_login, token, name, email, password)	VALUES (?,?,?,?,?,?,?,?)";
 	static final String ListarUsuarios = "select id, created, modified, last_login, token, name, email, password from usuario";
 	private final JdbcTemplate jdbcTemplate;	
@@ -28,6 +30,17 @@ public class UsuarioRepositoryImp implements UsuarioRepository {
 		this.jdbcTemplate = jdbcTemplate;
 	}
 
+	@Transactional
+	public Usuario regitrarUsaurio(Usuario usuario) {
+		try {
+			jdbcTemplate.update(CreateUsuario, usuario.getId(), usuario.getCreated(), usuario.getModified(), usuario.getLast_login(), usuario.getToken(), usuario.getName(), usuario.getEmail(), usuario.getPassword()); 
+		} catch (Exception e) {
+			logger.info("registrar Usuario Error: "+e.toString());
+			e.printStackTrace();
+		}
+		return usuario;
+	}
+	
 	@Override
 	@Transactional
 	public void save(Usuario usuario) {
@@ -42,6 +55,7 @@ public class UsuarioRepositoryImp implements UsuarioRepository {
 	
 	@Transactional
 	public List<Usuario> listarUsuarios(){
+		logger.info("listarUsuario . init");
 		List<Usuario> listarUsuarios = new ArrayList<>();
 		try{
             return jdbcTemplate.query(ListarUsuarios, new ResultSetExtractor<List<Usuario>>() {
@@ -75,27 +89,5 @@ public class UsuarioRepositoryImp implements UsuarioRepository {
             return listarUsuarios;
         }
 	}
-	
-	/**
-	 * 
-	 * public List<Employee> getAllEmployees(){  
- return template.query("select * from employee",new ResultSetExtractor<List<Employee>>(){  
-    @Override  
-     public List<Employee> extractData(ResultSet rs) throws SQLException,  
-            DataAccessException {  
-      
-        List<Employee> list=new ArrayList<Employee>();  
-        while(rs.next()){  
-        Employee e=new Employee();  
-        e.setId(rs.getInt(1));  
-        e.setName(rs.getString(2));  
-        e.setSalary(rs.getInt(3));  
-        list.add(e);  
-        }  
-        return list;  
-        }  
-    });  
-  }  
-	 */
 
 }
