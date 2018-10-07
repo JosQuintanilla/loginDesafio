@@ -11,18 +11,25 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Repository;
 
+import com.accenture.login.model.LoginRequest;
 import com.accenture.login.model.Usuario;
+import com.accenture.login.model.UsuarioMapper;
+import com.accenture.login.model.UsuarioRequest;
 
 @Repository("usuarioRepository")
 public class UsuarioRepositoryImp implements UsuarioRepository {
 	
-	final static Logger logger = Logger.getLogger(UsuarioRepositoryImp.class);
-	static final String CreateUsuario = "INSERT INTO usuario (id, created, modified, last_login, token, name, email, password)	VALUES (?,?,?,?,?,?,?,?)";
-	static final String ListarUsuarios = "select id, created, modified, last_login, token, name, email, password from usuario";
+	private final static Logger logger = Logger.getLogger(UsuarioRepositoryImp.class);
+	private static final String CreateUsuario = "INSERT INTO usuario (id, created, modified, last_login, token, name, email, password)	VALUES (?,?,?,?,?,?,?,?)";
+	private static final String ListarUsuarios = "select id, created, modified, last_login, token, name, email, password from usuario";
+	private static final String EliminarUsuario = "delete from usuario where email = ?";
+	private static final String BuscarUsuarioXEmail = "select id, created, modified, last_login, token, name, email, password from usuario where email =?";
+	private static final String Login = "select id, created, modified, last_login, token, name, email, password from usuario where email =? and password = ?";
 	private final JdbcTemplate jdbcTemplate;	
 	
 	@Autowired
@@ -32,6 +39,7 @@ public class UsuarioRepositoryImp implements UsuarioRepository {
 
 	@Transactional
 	public Usuario regitrarUsaurio(Usuario usuario) {
+		logger.info("regitrarUsaurio - init");
 		try {
 			jdbcTemplate.update(CreateUsuario, usuario.getId(), usuario.getCreated(), usuario.getModified(), usuario.getLast_login(), usuario.getToken(), usuario.getName(), usuario.getEmail(), usuario.getPassword()); 
 		} catch (Exception e) {
@@ -44,14 +52,78 @@ public class UsuarioRepositoryImp implements UsuarioRepository {
 	@Override
 	@Transactional
 	public void save(Usuario usuario) {
-		System.out.println("UsuarioRepositoryImp - save init");
+		logger.info("save - init");
 		try {
 			jdbcTemplate.update(CreateUsuario, usuario.getId(), usuario.getCreated(), usuario.getModified(), usuario.getLast_login(), usuario.getToken(), usuario.getName(), usuario.getEmail(), usuario.getPassword()); 
 		} catch (Exception e) {
-			System.out.println("UsuarioRepositoryImp - ERROR: ");
+			logger.info("save - ERROR: "+e.toString());
 			e.printStackTrace();
 		}
 	}
+	
+	@Transactional
+	public boolean eliminarUsuario(String email) {
+		logger.info("eliminarUsuario - init");
+		try {
+			jdbcTemplate.update(EliminarUsuario, email);
+			return true;
+		}catch (Exception e) {
+			logger.info("eliminarUsuario - ERROR: "+e.toString());
+			return false;
+		}
+	}
+	
+	@Transactional
+	public boolean existeUsuario(String email) {
+		logger.info("existeUsuario - init");
+		logger.info("existeUsuario - Email: "+email);
+		Boolean existeEmail = false;
+		try {
+			Usuario usuario = new Usuario();			
+			usuario = (Usuario) jdbcTemplate.queryForObject(BuscarUsuarioXEmail, new Object[] { email }, new UsuarioMapper());			
+			logger.info("existeUsuario - registrOOOOOOOOo: "+usuario.getEmail());
+			if(usuario.getEmail() != null || usuario.getEmail() != "") {
+				existeEmail =  true;
+			}else {
+				existeEmail = false;
+			}
+		} catch (Exception e) {
+			logger.info("existeUsuario - ERROR: "+e.toString());
+		}
+		return existeEmail;
+	}
+	
+	@Transactional
+	public Usuario login(LoginRequest loginRequest) {
+		logger.info("login - init");
+		Usuario usuario = new Usuario();
+		try {
+			usuario = (Usuario) jdbcTemplate.queryForObject(Login, new Object[] { loginRequest.getCorreo(), loginRequest.getContraseña() }, new UsuarioMapper());	
+		} catch (Exception e) {
+			logger.info("login - ERROR: "+e.toString());
+		}
+		return usuario;
+	}
+	
+	
+	/**
+	 * 
+	 public Item getItem(int itemId){
+        String query = "SELECT * FROM ITEM WHERE ID=?";
+        Item item = template.queryForObject(query,new Object[]{itemId},new BeanPropertyRowMapper<>(Item.class));
+
+        return item;
+    }
+	
+	public Article getArticleById(int articleId) {
+		String sql = "SELECT articleId, title, category FROM articles WHERE articleId = ?";
+		RowMapper<Article> rowMapper = new BeanPropertyRowMapper<Article>(Article.class);	
+		Article article = jdbcTemplate.queryForObject(sql, rowMapper, articleId);
+	return article;
+}
+	 * @return
+	 */
+	
 	
 	@Transactional
 	public List<Usuario> listarUsuarios(){
@@ -61,24 +133,15 @@ public class UsuarioRepositoryImp implements UsuarioRepository {
             return jdbcTemplate.query(ListarUsuarios, new ResultSetExtractor<List<Usuario>>() {
             	 @Override  
                  public List<Usuario> extractData(ResultSet rs) throws SQLException, DataAccessException {
-            		 List<Usuario> listarUsuarios = new ArrayList<>();
             		 while(rs.next()){ 
             			 Usuario usuario = new Usuario();
-            			 //id
             			 usuario.setId(rs.getString(1));
-            			 //created
             			 usuario.setCreated(rs.getDate(2));
-            			 //modified
             			 usuario.setModified(rs.getDate(3));
-            			 //last_login
             			 usuario.setLast_login(rs.getDate(4));
-            			 //token
             			 usuario.setToken(rs.getString(5));
-            			 //name
             			 usuario.setName(rs.getString(6));
-            			 //email
             			 usuario.setEmail(rs.getString(7));
-            			 //password
             			 usuario.setPassword(rs.getString(8));
             			 listarUsuarios.add(usuario);
             		 }
@@ -86,6 +149,7 @@ public class UsuarioRepositoryImp implements UsuarioRepository {
             	 }
             });
         }catch (EmptyResultDataAccessException emptyData){
+        	logger.info("listarUsuario . ERROR empyData");
             return listarUsuarios;
         }
 	}

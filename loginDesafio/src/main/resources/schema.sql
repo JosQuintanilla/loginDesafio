@@ -3,7 +3,7 @@ create table message (
   content varchar (50) not null,
   sender varchar (50) not null,
   sendDate date not null
-)
+);
 create table usuario(
 	id varchar (50) not null,
 	created date not null,
