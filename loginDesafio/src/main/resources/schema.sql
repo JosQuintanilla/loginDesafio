@@ -9,7 +9,7 @@ create table usuario(
 	created date not null,
 	modified date not null,
 	last_login date not null,
-	token varchar (50) not null,
+	token varchar (250) not null,
 	name varchar (50) not null,
 	email varchar (50) not null,
 	password varchar (60) not null
