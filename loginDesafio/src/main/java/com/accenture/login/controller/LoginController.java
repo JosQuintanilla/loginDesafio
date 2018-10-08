@@ -75,7 +75,7 @@ public class LoginController extends Constantes {
 				usuario.setCreated(new Date());
 				usuario.setModified(new Date());
 				usuario.setLast_login(new Date());
-				usuario.setToken(utils.createToken(usuario.getId()));
+				usuario.setToken(utils.createToken(usuario.getEmail()));
 				///
 				logger.info("registrarUsuario usuario ID: " + usuario.getId());
 				resJSON.setDescripcion("OK");
@@ -87,15 +87,27 @@ public class LoginController extends Constantes {
 		return resJSON;
 	}
 
-	// CON VALIDACION DE HEADER
+	// CON VALIDACION DE TOKEN en HEADER
 	// Listar Usuarios
-	@GetMapping("/verUsuarios")
-	public ResponseJSON listarUsuarios(@RequestHeader(value="token") String token) {
+	@GetMapping("/verUsuarios/{email}")
+	public ResponseJSON listarUsuarios(@PathVariable("email") String email, @RequestHeader(value="token") String token) {
 		logger.info("listarUsuarios init");
+		logger.info("listarUsuarios email :"+email);
 		logger.info("listarUsuarios TOKEN :"+token);
-		resJSON.setDescripcion("OK");
-		resJSON.setStatus(200);
-		resJSON.setPayload(usuarioRepository.listarUsuarios());
+		
+		if(utils.isTokenValid(token)) {
+			logger.info("listarUsuarios token valido");
+			resJSON.setDescripcion("OK");
+			resJSON.setStatus(200);
+			resJSON.setPayload(usuarioRepository.listarUsuarios());
+		}else {
+			logger.info("listarUsuarios token invalido");
+			resJSON.setDescripcion("ERROR");
+			resJSON.setStatus(400);
+			Map<String, String> mapaMensajes = new HashMap<>();
+			mapaMensajes.put("mensaje", Constantes.TOKENINVALIDO);
+			resJSON.setPayload(mapaMensajes);
+		}		
 		return resJSON;
 	}
 

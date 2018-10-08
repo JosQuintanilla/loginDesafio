@@ -34,7 +34,7 @@ public class Utils extends Constantes {
 		try {
 			Algorithm algorithm = Algorithm.HMAC256(TOKEN_SECRET);
 			Date fechaHasta = new Date();
-			
+			fechaHasta.setMinutes(fechaHasta.getMinutes() +3);
 			String token = JWT.create().withClaim("email", email).withClaim("fechaCreacion", new Date()).withClaim("fechaHasta",fechaHasta).sign(algorithm);
 			return token;
 		} catch (UnsupportedEncodingException exception) {
@@ -47,12 +47,12 @@ public class Utils extends Constantes {
 		return null;
 	}
 
-	public String getUserIdFromToken(String token) {
+	public String getEmailFromToken(String token) {
 		try {
 			Algorithm algorithm = Algorithm.HMAC256(TOKEN_SECRET);
 			JWTVerifier verifier = JWT.require(algorithm).build();
 			DecodedJWT jwt = verifier.verify(token);
-			return jwt.getClaim("userId").asString();
+			return jwt.getClaim("email").asString();
 		} catch (UnsupportedEncodingException exception) {
 			exception.printStackTrace();
 			// log WRONG Encoding message
@@ -65,8 +65,8 @@ public class Utils extends Constantes {
 	}
 
 	public boolean isTokenValid(String token) {
-		String userId = this.getUserIdFromToken(token);
-		return userId != null;
+		String email = this.getEmailFromToken(token);
+		return email != null;
 	}
 
 	public boolean validarEmail(String email) {
