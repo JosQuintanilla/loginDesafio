@@ -7,10 +7,12 @@ import javax.transaction.Transactional;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import com.accenture.login.converter.UsuarioConverter;
 import com.accenture.login.converter.UsuarioMapper;
 import com.accenture.login.converter.UsuarioResponseMapper;
 import com.accenture.login.entity.Telefono;
@@ -23,14 +25,20 @@ public class UsuarioRepositoryImp implements UsuarioRepository {
 	
 	private static final String CreateUsuario = "INSERT INTO usuario (id, created, modified, last_login, token, name, email, password)	VALUES (?,?,?,?,?,?,?,?)";
 	private static final String InsertTelefonos = "INSERT INTO telefono ( number, citycode, contrycode, id)	VALUES (?,?,?,?)";
-	private static final String ListarUsuarios = "select u.id, u.name, u.email, u.token, t.number, t.citycode, t.contrycode from usuario as u, telefono as t where u.id = t.id  group by u.id, u.name, u.email, u.token, t.number, t.citycode, t.contrycode";
+	private static final String ListarUsuarios = "select u.name, u.email, u.password, u.token, t.number, t.citycode, t.contrycode from usuario as u, telefono as t where u.id = t.id  group by u.id, u.name, u.email, u.token, t.number, t.citycode, t.contrycode";
 	private static final String listarTelefonos = "select email, number, citycode, contrycode from telefon where email = ?)";
 	private static final String EliminarUsuario = "delete from usuario u JOIN telefono t on u.email = t.email where u.email = ?";
 	private static final String BuscarUsuarioXEmail = "select id, created, modified, last_login, token, name, email, password from usuario where email =?";
-	private static final String Login = "select id, created, modified, last_login, token, name, email, password from usuario where email =? and password = ?";
+	private static final String Login = "select u.name, u.email, u.password, u.token, t.number, t.citycode, t.contrycode from usuario as u, telefono as t where u.id = t.id AND u.email =? and u.password = ?";
+	private static final String ActualizarFechaLogin = "";
+	
 	
 	private final static Logger logger = Logger.getLogger(UsuarioRepositoryImp.class);
 	private final JdbcTemplate jdbcTemplate;	
+	
+	@Autowired
+	@Qualifier("usuarioConverter")
+	private UsuarioConverter usuarioConverter;
 	
 	@Autowired
 	public UsuarioRepositoryImp(JdbcTemplate jdbcTemplate) {
@@ -114,15 +122,19 @@ public class UsuarioRepositoryImp implements UsuarioRepository {
 	}
 	
 	@Transactional
-	public Usuario login(LoginRequest loginRequest) {
+	public UsuarioResponse login(LoginRequest loginRequest) {
 		logger.info("login - init");
-		Usuario usuario = new Usuario();
+		UsuarioResponse usuarioResponse = new UsuarioResponse();
+		List<UsuarioResponse> listaUsuarioResponse = new ArrayList<>();
 		try {
-			usuario = (Usuario) jdbcTemplate.queryForObject(Login, new Object[] { loginRequest.getCorreo(), loginRequest.getContraseña() }, new UsuarioMapper());	
+			logger.info("login - try");
+			listaUsuarioResponse = jdbcTemplate.query(Login, new Object[] { loginRequest.getCorreo(), loginRequest.getContraseña() }, new UsuarioResponseMapper());
+			listaUsuarioResponse = usuarioConverter.ordenarUsuarioResponse(listaUsuarioResponse);
+			usuarioResponse = listaUsuarioResponse.get(0);
 		} catch (Exception e) {
 			logger.info("login - ERROR: "+e.toString());
 		}
-		return usuario;
+		return usuarioResponse;
 	}
 	
 	@Transactional
@@ -132,7 +144,7 @@ public class UsuarioRepositoryImp implements UsuarioRepository {
 		try{
 			logger.info("listarUsuario try");
 			listarUsuarios =jdbcTemplate.query(ListarUsuarios, new UsuarioResponseMapper());
-			return listarUsuarios;
+			return usuarioConverter.ordenarUsuarioResponse(listarUsuarios);
         }catch (EmptyResultDataAccessException emptyData){
         	logger.info("listarUsuario . ERROR empyData");
             return listarUsuarios;

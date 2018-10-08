@@ -8,18 +8,18 @@ public class UsuarioResponse {
 	private String email;
 	private String password;
 	private String token;
-	private List<TelefonoModel> listaTelefonos;
-	
+	private List<TelefonoModel> phones;
+
 	public UsuarioResponse() {
 		super();
 	}
 
-	public UsuarioResponse(String name, String email, String password, List<TelefonoModel> listaTelefonos) {
+	public UsuarioResponse(String name, String email, String password, List<TelefonoModel> phones) {
 		super();
 		this.name = name;
 		this.email = email;
 		this.password = password;
-		this.listaTelefonos = listaTelefonos;
+		this.phones = phones;
 	}
 
 	public String getName() {
@@ -54,12 +54,12 @@ public class UsuarioResponse {
 		this.token = token;
 	}
 
-	public List<TelefonoModel> getListaTelefonos() {
-		return listaTelefonos;
+	public List<TelefonoModel> getPhones() {
+		return phones;
 	}
 
-	public void setListaTelefonos(List<TelefonoModel> listaTelefonos) {
-		this.listaTelefonos = listaTelefonos;
+	public void setPhones(List<TelefonoModel> phones) {
+		this.phones = phones;
 	}
 
 }

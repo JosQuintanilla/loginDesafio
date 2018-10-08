@@ -18,12 +18,12 @@ public class UsuarioConverter {
 
 	public Usuario resquestToEntity(UsuarioRequest usuarioRequest) {
 		Usuario usuario = new Usuario();
-		if(usuarioRequest != null) {
+		if (usuarioRequest != null) {
 			usuario.setName(usuarioRequest.getNombre());
 			usuario.setEmail(usuarioRequest.getCorreo());
 			usuario.setPassword(usuarioRequest.getContraseña());
-			if(usuarioRequest.getListaTelefonos() != null) {
-				List<Telefono> listaPhones = new ArrayList<>();	
+			if (usuarioRequest.getListaTelefonos() != null) {
+				List<Telefono> listaPhones = new ArrayList<>();
 				for (TelefonoModel telefonoModel : usuarioRequest.getListaTelefonos()) {
 					Telefono telefono = new Telefono();
 					telefono.setCitycode(telefonoModel.getCitycode());
@@ -32,28 +32,28 @@ public class UsuarioConverter {
 					listaPhones.add(telefono);
 				}
 				usuario.setPhones(listaPhones);
-			}else {
-				List<Telefono> listaPhones = new ArrayList<>();	
+			} else {
+				List<Telefono> listaPhones = new ArrayList<>();
 				usuario.setPhones(listaPhones);
-			}			
-		}else {
+			}
+		} else {
 			usuario.setName("");
 			usuario.setEmail("");
 			usuario.setPassword("");
-			List<Telefono> listaPhones = new ArrayList<>();	
+			List<Telefono> listaPhones = new ArrayList<>();
 			usuario.setPhones(listaPhones);
-		}				
+		}
 		return usuario;
 	}
-	
+
 	public UsuarioResponse entityToResponse(Usuario usuario) {
 		UsuarioResponse usuarioResponse = new UsuarioResponse();
-		if(usuario != null) {
+		if (usuario != null) {
 			usuarioResponse.setName(usuario.getName());
 			usuarioResponse.setEmail(usuario.getEmail());
 			usuarioResponse.setPassword(usuario.getPassword());
 			usuarioResponse.setToken(usuario.getToken());
-			if(usuario.getPhones() != null) {
+			if (usuario.getPhones() != null) {
 				List<TelefonoModel> listaTelefonos = new ArrayList<>();
 				for (Telefono telefono : usuario.getPhones()) {
 					TelefonoModel telefonoModel = new TelefonoModel();
@@ -62,32 +62,54 @@ public class UsuarioConverter {
 					telefonoModel.setContrycode(telefono.getContrycode());
 					listaTelefonos.add(telefonoModel);
 				}
-				usuarioResponse.setListaTelefonos(listaTelefonos);
-			}else {
+				usuarioResponse.setPhones(listaTelefonos);
+			} else {
 				List<TelefonoModel> listaTelefonos = new ArrayList<>();
-				usuarioResponse.setListaTelefonos(listaTelefonos);
+				usuarioResponse.setPhones(listaTelefonos);
 			}
-		}else {
+		} else {
 			usuarioResponse.setName("");
 			usuarioResponse.setEmail("");
 			usuarioResponse.setPassword("");
 		}
 		return usuarioResponse;
 	}
-	
-	public List<UsuarioResponse> ordenarUsuarioResponse(List<UsuarioResponse> listaResponse){
+
+	public List<UsuarioResponse> ordenarUsuarioResponse(List<UsuarioResponse> listaResponse) {
 		List<UsuarioResponse> listaOrdenada = new ArrayList<>();
-		Map<String, String> mapaEmail = new HashMap<>();
-		
+		Map<String, UsuarioResponse> mapaEmail = new HashMap<>();
+
 		for (UsuarioResponse usuarioResponse : listaResponse) {
 			UsuarioResponse usuarioAux = new UsuarioResponse();
-			if(!mapaEmail.containsKey(usuarioResponse.getEmail())) {
-				
-			}else {
-				
+			if (mapaEmail.containsKey(usuarioResponse.getEmail())) {
+
+				usuarioAux = mapaEmail.get(usuarioResponse.getEmail());
+
+				List<TelefonoModel> listaTelefonoModel = usuarioAux.getPhones();
+
+				for (TelefonoModel telefonoModel : usuarioResponse.getPhones()) {
+					listaTelefonoModel.add(telefonoModel);
+				}
+
+				usuarioAux.setPhones(listaTelefonoModel);
+
+				mapaEmail.put(usuarioResponse.getEmail(), usuarioAux);
+
+			} else {
+				usuarioAux.setName(usuarioResponse.getName());
+				usuarioAux.setEmail(usuarioResponse.getEmail());
+				usuarioAux.setPassword(usuarioResponse.getPassword());
+				usuarioAux.setToken(usuarioResponse.getToken());
+				usuarioAux.setPhones(usuarioResponse.getPhones());
+				mapaEmail.put(usuarioResponse.getEmail(), usuarioAux);
 			}
-			listaOrdenada.add(usuarioAux);
-		}		
+
+		}
+		// Recorro el Mapa
+		for (UsuarioResponse usuarioResponseMap : mapaEmail.values()) {
+			listaOrdenada.add(usuarioResponseMap);
+		}
+
 		return listaOrdenada;
 	}
 }

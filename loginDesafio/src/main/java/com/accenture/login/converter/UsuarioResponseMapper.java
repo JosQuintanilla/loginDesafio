@@ -27,8 +27,7 @@ public class UsuarioResponseMapper implements RowMapper {
 		tefonoModel.setCitycode(rs.getInt(6));
 		tefonoModel.setContrycode(rs.getInt(7));
 		listaTelefonos.add(tefonoModel);
-		response.setListaTelefonos(listaTelefonos);
-		response.setListaTelefonos(listaTelefonos);
+		response.setPhones(listaTelefonos);
 		return response;
 	}
 }

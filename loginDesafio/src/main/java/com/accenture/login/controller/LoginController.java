@@ -25,6 +25,7 @@ import com.accenture.login.entity.Usuario;
 import com.accenture.login.model.LoginRequest;
 import com.accenture.login.model.ResponseJSON;
 import com.accenture.login.model.UsuarioRequest;
+import com.accenture.login.model.UsuarioResponse;
 import com.accenture.login.repository.UsuarioRepositoryImp;
 import com.accenture.login.utils.Utils;
 
@@ -50,7 +51,8 @@ public class LoginController extends Constantes {
 	// SIN HEADER
 	// Registar un usuario
 	@PostMapping("/registrarUsuario")
-	public ResponseJSON registrarUsuario(@Valid @RequestBody UsuarioRequest usuarioRequest, BindingResult bindingResult) {
+	public ResponseJSON registrarUsuario(@Valid @RequestBody UsuarioRequest usuarioRequest,
+			BindingResult bindingResult) {
 		logger.info("registrarUsuario init");
 		if (bindingResult.hasErrors()) {
 			resJSON.setDescripcion("ERROR");
@@ -84,8 +86,50 @@ public class LoginController extends Constantes {
 		}
 		return resJSON;
 	}
-	// CON VALIDACION DE HEADER
 
+	// CON VALIDACION DE HEADER
+	// Listar Usuarios
+	@GetMapping("/verUsuarios")
+	public ResponseJSON listarUsuarios() {
+		logger.info("listarUsuarios init");
+		resJSON.setDescripcion("OK");
+		resJSON.setStatus(200);
+		resJSON.setPayload(usuarioRepository.listarUsuarios());
+		return resJSON;
+	}
+
+	/////////// LOGIN////////////
+	@PostMapping("/login")
+	public ResponseJSON login(@Valid @RequestBody LoginRequest loginRequest, BindingResult bindingResult) {
+		logger.info("Login init");
+		if (bindingResult.hasErrors()) {
+			resJSON.setDescripcion("ERROR");
+			resJSON.setStatus(401);
+			resJSON.setPayload(utils.obtenerMsjValidacion(bindingResult.getAllErrors()));
+		} else {
+			UsuarioResponse usuarioResponse = new UsuarioResponse();
+			logger.info("Login Password Original: " + loginRequest.getContraseña());
+			/*
+			 * loginRequest.setContraseña(utils.encriptarPass(loginRequest.getContraseña()))
+			 * ; logger.info("Login Password Encriptarada: " +loginRequest.getContraseña());
+			 */
+			usuarioResponse = usuarioRepository.login(loginRequest);
+			if (usuarioResponse.getEmail() != null && usuarioResponse.getEmail() != "") {
+				resJSON.setDescripcion("OK");
+				resJSON.setStatus(200);
+				resJSON.setPayload(usuarioResponse);
+			} else {
+				resJSON.setDescripcion("ERROR");
+				resJSON.setStatus(401);
+				Map<String, String> mapaMensajes = new HashMap<>();
+				mapaMensajes.put("mensaje", Constantes.NOT_LOGIN);
+				resJSON.setPayload(mapaMensajes);
+			}
+		}
+		return resJSON;
+	}
+
+	///////////////////
 	// Eliminar un Uusario
 	@DeleteMapping("/deleteUsuario/{email}")
 	public ResponseJSON eliminarUsuario(@PathVariable("email") String email) {
@@ -107,49 +151,6 @@ public class LoginController extends Constantes {
 			Map<String, String> mapaMensajes = new HashMap<>();
 			mapaMensajes.put("mensaje", Constantes.CORREO_SIN_FORMATO);
 			resJSON.setPayload(mapaMensajes);
-		}
-		return resJSON;
-	}
-
-	// Listar Usuarios
-	@GetMapping("/verUsuarios")
-	public ResponseJSON listarUsuarios() {
-		logger.info("listarUsuarios init");
-		resJSON.setDescripcion("OK");
-		resJSON.setStatus(200);
-		resJSON.setPayload(usuarioRepository.listarUsuarios());
-		return resJSON;
-	}
-
-	/////////// LOGIN////////////
-	// Rggistar un usuario
-	@PostMapping("/login")
-	public ResponseJSON login(@Valid @RequestBody LoginRequest loginRequest, BindingResult bindingResult) {
-		logger.info("Login init");
-		if (bindingResult.hasErrors()) {
-			resJSON.setDescripcion("ERROR");
-			resJSON.setStatus(401);
-			resJSON.setPayload(utils.obtenerMsjValidacion(bindingResult.getAllErrors()));
-		} else {
-			Usuario usuario = new Usuario();
-
-			logger.info("Login Password Original: " + loginRequest.getContraseña());
-			/*
-			 * loginRequest.setContraseña(utils.encriptarPass(loginRequest.getContraseña()))
-			 * ; logger.info("Login Password Encriptarada: " +loginRequest.getContraseña());
-			 */
-			usuario = usuarioRepository.login(loginRequest);
-			if (usuario.getId() != null && usuario.getId() != "") {
-				resJSON.setDescripcion("OK");
-				resJSON.setStatus(200);
-				resJSON.setPayload(usuario);
-			} else {
-				resJSON.setDescripcion("ERROR");
-				resJSON.setStatus(401);
-				Map<String, String> mapaMensajes = new HashMap<>();
-				mapaMensajes.put("mensaje", Constantes.NOT_LOGIN);
-				resJSON.setPayload(mapaMensajes);
-			}
 		}
 		return resJSON;
 	}
