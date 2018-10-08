@@ -1,4 +1,4 @@
-package com.accenture.login.model;
+package com.accenture.login.converter;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -22,5 +22,4 @@ public class UsuarioMapper implements RowMapper {
 		usuario.setPassword(rs.getString(8));
 		return usuario;
 	}
-
 }

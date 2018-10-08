@@ -1,5 +1,7 @@
 package com.accenture.login.model;
 
+import java.util.List;
+
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -20,6 +22,8 @@ public class UsuarioRequest {
 	@NotBlank(message = "Debe ingresar una contraseña")
 	@Size(min = 6, max = 12, message = "la contraseña debe ser de largo minimo 6 y maximo 12 caracteres")
 	private String contraseña;
+	
+	private List<TelefonoModel> listaTelefonos;
 
 	public UsuarioRequest() {
 	}
@@ -53,5 +57,13 @@ public class UsuarioRequest {
 
 	public void setContraseña(String contraseña) {
 		this.contraseña = contraseña;
+	}
+
+	public List<TelefonoModel> getListaTelefonos() {
+		return listaTelefonos;
+	}
+
+	public void setListaTelefonos(List<TelefonoModel> listaTelefonos) {
+		this.listaTelefonos = listaTelefonos;
 	}
 }

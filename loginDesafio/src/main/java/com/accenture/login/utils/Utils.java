@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.ObjectError;
 
@@ -79,6 +80,12 @@ public class Utils extends Constantes {
 			return false;
 		}
 	}
+	
+	public String encriptarPass(String password) {
+		BCryptPasswordEncoder be = new BCryptPasswordEncoder();
+		return be.encode(password);
+	}
+	
 	/**
 	 * 
 	 * 

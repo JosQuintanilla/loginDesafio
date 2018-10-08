@@ -1,10 +1,13 @@
 package com.accenture.login.entity;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
@@ -35,10 +38,13 @@ public class Usuario {
 
 	@Column(name = "password")
 	private String password;
-	
+
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "usuario")
+	private List<Telefono> phones;
+
 	public Usuario() {
 	}
-	
+
 	public Usuario(String id, Date created, Date modified, Date last_login, String token, String name, String email, String password) {
 		super();
 		this.id = id;
@@ -49,6 +55,19 @@ public class Usuario {
 		this.name = name;
 		this.email = email;
 		this.password = password;
+	}
+
+	public Usuario(String id, Date created, Date modified, Date last_login, String token, String name, String email, String password, List<Telefono> phones) {
+		super();
+		this.id = id;
+		this.created = created;
+		this.modified = modified;
+		this.last_login = last_login;
+		this.token = token;
+		this.name = name;
+		this.email = email;
+		this.password = password;
+		this.phones = phones;
 	}
 
 	public String getId() {
@@ -114,4 +133,13 @@ public class Usuario {
 	public void setPassword(String password) {
 		this.password = password;
 	}
+
+	public List<Telefono> getPhones() {
+		return phones;
+	}
+
+	public void setPhones(List<Telefono> phones) {
+		this.phones = phones;
+	}
+
 }
