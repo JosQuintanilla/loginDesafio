@@ -5,6 +5,8 @@ import java.sql.SQLException;
 
 import org.springframework.jdbc.core.RowMapper;
 
+import com.accenture.login.entity.Usuario;
+
 public class UsuarioMapper implements RowMapper {
 
 	@Override

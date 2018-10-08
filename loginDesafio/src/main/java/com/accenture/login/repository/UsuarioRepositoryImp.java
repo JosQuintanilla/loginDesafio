@@ -11,8 +11,8 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import com.accenture.login.entity.Usuario;
 import com.accenture.login.model.LoginRequest;
-import com.accenture.login.model.Usuario;
 import com.accenture.login.model.UsuarioMapper;
 
 @Repository("usuarioRepository")

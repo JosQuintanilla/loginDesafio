@@ -21,9 +21,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.accenture.login.constant.Constantes;
 import com.accenture.login.converter.UsuarioConverter;
+import com.accenture.login.entity.Usuario;
 import com.accenture.login.model.LoginRequest;
 import com.accenture.login.model.ResponseJSON;
-import com.accenture.login.model.Usuario;
 import com.accenture.login.model.UsuarioRequest;
 import com.accenture.login.repository.UsuarioRepositoryImp;
 import com.accenture.login.utils.Utils;

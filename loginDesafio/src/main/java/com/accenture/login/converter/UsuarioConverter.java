@@ -2,7 +2,7 @@ package com.accenture.login.converter;
 
 import org.springframework.stereotype.Component;
 
-import com.accenture.login.model.Usuario;
+import com.accenture.login.entity.Usuario;
 import com.accenture.login.model.UsuarioRequest;
 
 @Component("usuarioConverter")

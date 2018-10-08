@@ -1,6 +1,6 @@
 package com.accenture.login.repository;
 
-import com.accenture.login.model.Usuario;
+import com.accenture.login.entity.Usuario;
 
 public interface UsuarioRepository {
 

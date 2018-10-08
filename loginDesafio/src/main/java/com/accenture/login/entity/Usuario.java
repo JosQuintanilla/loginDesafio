@@ -1,10 +1,14 @@
-package com.accenture.login.model;
+package com.accenture.login.entity;
 
 import java.util.Date;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
+@Entity
+@Table(name = "usuario")
 public class Usuario {
 
 	@Id
