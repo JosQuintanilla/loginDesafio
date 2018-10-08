@@ -1,8 +1,8 @@
 package com.accenture.login.controller;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.validation.Valid;
@@ -47,6 +47,9 @@ public class LoginController extends Constantes {
 	@Qualifier("utils")
 	private Utils utils;
 
+	//SIN HEADER
+	
+	//CON  VALIDACION DE HEADER
 	// Rggistar un usuario
 	@PostMapping("/registrarUsuario")
 	public ResponseJSON registrarUsuario(@Valid @RequestBody UsuarioRequest usuarioRequest, BindingResult bindingResult) {
@@ -57,12 +60,11 @@ public class LoginController extends Constantes {
 			resJSON.setPayload(utils.obtenerMsjValidacion(bindingResult.getAllErrors()));
 		} else {
 			if (usuarioRepository.existeUsuario(usuarioRequest.getCorreo())) {
-				logger.info("registrarUsuario " + Constantes.CORREO_REGISTRADO);
 				resJSON.setDescripcion("ERROR");
 				resJSON.setStatus(400);
-				List<String> listaError = new ArrayList<String>();
-				listaError.add("mensaje : " + Constantes.CORREO_REGISTRADO);
-				resJSON.setPayload(listaError);
+				Map<String, String> mapaMensajes = new HashMap<>();
+				mapaMensajes.put("mensaje", Constantes.CORREO_REGISTRADO);				
+				resJSON.setPayload(mapaMensajes);
 			} else {
 				Usuario usuario = new Usuario();
 				usuario = usuarioConverter.resquestToModel(usuarioRequest);
@@ -87,21 +89,21 @@ public class LoginController extends Constantes {
 		logger.info("eliminarUsuario init");
 		logger.info("eliminarUsuario email: " + email);
 		if (utils.validarEmail(email)) {
-			List<String> listaMensajes = new ArrayList<String>();
+			Map<String, String> mapaMensajes = new HashMap<>();
 			resJSON.setDescripcion("OK");
 			resJSON.setStatus(200);
 			if (usuarioRepository.eliminarUsuario(email)) {
-				listaMensajes.add("mensaje : Usuario Eliminado");
+				mapaMensajes.put("mensaje", "Usuario Eliminado");
 			} else {
-				listaMensajes.add("mensaje : Error al eliminar el usuario de correo: " + email);
+				mapaMensajes.put("mensaje", "Error al eliminar el usuario de correo: " + email);
 			}
-			resJSON.setPayload(listaMensajes);
+			resJSON.setPayload(mapaMensajes);
 		} else {
 			resJSON.setDescripcion("ERROR");
 			resJSON.setStatus(400);
-			List<String> listaError = new ArrayList<String>();
-			listaError.add("mensaje : " + Constantes.CORREO_SIN_FORMATO);
-			resJSON.setPayload(listaError);
+			Map<String, String> mapaMensajes = new HashMap<>();
+			mapaMensajes.put("mensaje", Constantes.CORREO_SIN_FORMATO);				
+			resJSON.setPayload(mapaMensajes);
 		}
 		return resJSON;
 	}
@@ -123,7 +125,7 @@ public class LoginController extends Constantes {
 		logger.info("registrarUsuario init");
 		if (bindingResult.hasErrors()) {
 			resJSON.setDescripcion("ERROR");
-			resJSON.setStatus(400);
+			resJSON.setStatus(401);
 			resJSON.setPayload(utils.obtenerMsjValidacion(bindingResult.getAllErrors()));
 		} else {
 			Usuario usuario = new Usuario();
@@ -135,9 +137,9 @@ public class LoginController extends Constantes {
 			}else {
 				resJSON.setDescripcion("ERROR");
 				resJSON.setStatus(401);
-				List<String> listaError = new ArrayList<String>();
-				listaError.add("mensaje : " + Constantes.NOT_LOGIN);
-				resJSON.setPayload(listaError);
+				Map<String, String> mapaMensajes = new HashMap<>();
+				mapaMensajes.put("mensaje", Constantes.NOT_LOGIN);				
+				resJSON.setPayload(mapaMensajes);
 			}			
 		}
 		return resJSON;

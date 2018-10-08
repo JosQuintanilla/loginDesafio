@@ -1,7 +1,5 @@
 package com.accenture.login.repository;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,27 +7,24 @@ import javax.transaction.Transactional;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Repository;
 
 import com.accenture.login.model.LoginRequest;
 import com.accenture.login.model.Usuario;
 import com.accenture.login.model.UsuarioMapper;
-import com.accenture.login.model.UsuarioRequest;
 
 @Repository("usuarioRepository")
 public class UsuarioRepositoryImp implements UsuarioRepository {
 	
-	private final static Logger logger = Logger.getLogger(UsuarioRepositoryImp.class);
 	private static final String CreateUsuario = "INSERT INTO usuario (id, created, modified, last_login, token, name, email, password)	VALUES (?,?,?,?,?,?,?,?)";
 	private static final String ListarUsuarios = "select id, created, modified, last_login, token, name, email, password from usuario";
 	private static final String EliminarUsuario = "delete from usuario where email = ?";
 	private static final String BuscarUsuarioXEmail = "select id, created, modified, last_login, token, name, email, password from usuario where email =?";
 	private static final String Login = "select id, created, modified, last_login, token, name, email, password from usuario where email =? and password = ?";
+	
+	private final static Logger logger = Logger.getLogger(UsuarioRepositoryImp.class);
 	private final JdbcTemplate jdbcTemplate;	
 	
 	@Autowired
@@ -105,6 +100,19 @@ public class UsuarioRepositoryImp implements UsuarioRepository {
 		return usuario;
 	}
 	
+	@Transactional
+	public List<Usuario> listarUsuarios(){
+		logger.info("listarUsuario . init");
+		List<Usuario> listarUsuarios = new ArrayList<>();
+		try{
+			logger.info("listarUsuario try");
+			listarUsuarios =jdbcTemplate.query(ListarUsuarios, new UsuarioMapper());
+			return listarUsuarios;
+        }catch (EmptyResultDataAccessException emptyData){
+        	logger.info("listarUsuario . ERROR empyData");
+            return listarUsuarios;
+        }
+	}
 	
 	/**
 	 * 
@@ -119,11 +127,8 @@ public class UsuarioRepositoryImp implements UsuarioRepository {
 		String sql = "SELECT articleId, title, category FROM articles WHERE articleId = ?";
 		RowMapper<Article> rowMapper = new BeanPropertyRowMapper<Article>(Article.class);	
 		Article article = jdbcTemplate.queryForObject(sql, rowMapper, articleId);
-	return article;
-}
-	 * @return
-	 */
-	
+		return article;
+	}
 	
 	@Transactional
 	public List<Usuario> listarUsuarios(){
@@ -153,5 +158,6 @@ public class UsuarioRepositoryImp implements UsuarioRepository {
             return listarUsuarios;
         }
 	}
-
+	 * @return
+	 */
 }
