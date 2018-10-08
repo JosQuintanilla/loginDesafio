@@ -27,12 +27,11 @@ public class UsuarioRepositoryImp implements UsuarioRepository {
 	private static final String CreateUsuario = "INSERT INTO usuario (id, created, modified, last_login, token, name, email, password)	VALUES (?,?,?,?,?,?,?,?)";
 	private static final String InsertTelefonos = "INSERT INTO telefono ( number, citycode, contrycode, id)	VALUES (?,?,?,?)";
 	private static final String ListarUsuarios = "select u.name, u.email, u.password, u.token, t.number, t.citycode, t.contrycode from usuario as u, telefono as t where u.id = t.id  group by u.id, u.name, u.email, u.token, t.number, t.citycode, t.contrycode";
-	private static final String listarTelefonos = "select email, number, citycode, contrycode from telefon where email = ?)";
 	private static final String EliminarUsuario = "delete from usuario u JOIN telefono t on u.email = t.email where u.email = ?";
 	private static final String BuscarUsuarioXEmail = "select id, created, modified, last_login, token, name, email, password from usuario where email =?";
 	private static final String Login = "select u.name, u.email, u.password, u.token, t.number, t.citycode, t.contrycode from usuario as u, telefono as t where u.id = t.id AND u.email =? and u.password = ?";
 	private static final String ActualizarFechaLogin = "update usuario set last_login = ? where email = ?";
-	
+	private static final String ObtenerTokenFromEmail = "select id, created, modified, last_login, token, name, email, password from usuario where email =?";
 	
 	private final static Logger logger = Logger.getLogger(UsuarioRepositoryImp.class);
 	private final JdbcTemplate jdbcTemplate;	
@@ -110,6 +109,20 @@ public class UsuarioRepositoryImp implements UsuarioRepository {
 		}catch (Exception e) {
 			logger.info("eliminarUsuario - ERROR: "+e.toString());
 			return false;
+		}
+	}
+	
+	
+	@Transactional
+	public Usuario obtenerToken(String email) {
+		logger.info("obtenerToken - init");
+		logger.info("obtenerToken - Email: "+email);
+		Usuario usuario = new Usuario();	
+		try {
+			return (Usuario) jdbcTemplate.queryForObject(ObtenerTokenFromEmail, new Object[] { email }, new UsuarioMapper());		
+		} catch (Exception e) {
+			logger.info("obtenerToken - ERROR: "+e.toString());
+			return usuario;
 		}
 	}
 	
