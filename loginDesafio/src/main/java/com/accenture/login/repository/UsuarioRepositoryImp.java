@@ -1,6 +1,7 @@
 package com.accenture.login.repository;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.transaction.Transactional;
@@ -30,7 +31,7 @@ public class UsuarioRepositoryImp implements UsuarioRepository {
 	private static final String EliminarUsuario = "delete from usuario u JOIN telefono t on u.email = t.email where u.email = ?";
 	private static final String BuscarUsuarioXEmail = "select id, created, modified, last_login, token, name, email, password from usuario where email =?";
 	private static final String Login = "select u.name, u.email, u.password, u.token, t.number, t.citycode, t.contrycode from usuario as u, telefono as t where u.id = t.id AND u.email =? and u.password = ?";
-	private static final String ActualizarFechaLogin = "";
+	private static final String ActualizarFechaLogin = "update usuario set last_login = ? where email = ?";
 	
 	
 	private final static Logger logger = Logger.getLogger(UsuarioRepositoryImp.class);
@@ -82,6 +83,17 @@ public class UsuarioRepositoryImp implements UsuarioRepository {
 			e.printStackTrace();
 		}
 	}
+	
+	public void actualizarFechaLogin(String email) {
+		logger.info("actualizarFechaLogin - init");
+		try {
+			jdbcTemplate.update(ActualizarFechaLogin, new Date(), email);
+		} catch (Exception e) {
+			logger.info("actualizarFechaLogin - ERROR: "+e.toString());
+			e.printStackTrace();
+		}
+	}
+	
 	
 	@Transactional
 	public boolean eliminarUsuario(String email) {

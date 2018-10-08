@@ -30,11 +30,12 @@ public class Utils extends Constantes {
 		return listaErrores;
 	}
 
-	public String createToken(String userid) {
+	public String createToken(String email) {
 		try {
 			Algorithm algorithm = Algorithm.HMAC256(TOKEN_SECRET);
-
-			String token = JWT.create().withClaim("userId", userid).withClaim("createdAt", new Date()).sign(algorithm);
+			Date fechaHasta = new Date();
+			
+			String token = JWT.create().withClaim("email", email).withClaim("fechaCreacion", new Date()).withClaim("fechaHasta",fechaHasta).sign(algorithm);
 			return token;
 		} catch (UnsupportedEncodingException exception) {
 			exception.printStackTrace();

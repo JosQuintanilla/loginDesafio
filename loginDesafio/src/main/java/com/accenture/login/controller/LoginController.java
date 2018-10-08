@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -51,8 +52,7 @@ public class LoginController extends Constantes {
 	// SIN HEADER
 	// Registar un usuario
 	@PostMapping("/registrarUsuario")
-	public ResponseJSON registrarUsuario(@Valid @RequestBody UsuarioRequest usuarioRequest,
-			BindingResult bindingResult) {
+	public ResponseJSON registrarUsuario(@Valid @RequestBody UsuarioRequest usuarioRequest, BindingResult bindingResult) {
 		logger.info("registrarUsuario init");
 		if (bindingResult.hasErrors()) {
 			resJSON.setDescripcion("ERROR");
@@ -90,8 +90,9 @@ public class LoginController extends Constantes {
 	// CON VALIDACION DE HEADER
 	// Listar Usuarios
 	@GetMapping("/verUsuarios")
-	public ResponseJSON listarUsuarios() {
+	public ResponseJSON listarUsuarios(@RequestHeader(value="token") String token) {
 		logger.info("listarUsuarios init");
+		logger.info("listarUsuarios TOKEN :"+token);
 		resJSON.setDescripcion("OK");
 		resJSON.setStatus(200);
 		resJSON.setPayload(usuarioRepository.listarUsuarios());
@@ -115,6 +116,7 @@ public class LoginController extends Constantes {
 			 */
 			usuarioResponse = usuarioRepository.login(loginRequest);
 			if (usuarioResponse.getEmail() != null && usuarioResponse.getEmail() != "") {
+				usuarioRepository.actualizarFechaLogin(usuarioResponse.getEmail());
 				resJSON.setDescripcion("OK");
 				resJSON.setStatus(200);
 				resJSON.setPayload(usuarioResponse);
