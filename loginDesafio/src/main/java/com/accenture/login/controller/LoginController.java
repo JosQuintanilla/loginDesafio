@@ -28,6 +28,7 @@ import com.accenture.login.model.ResponseJSON;
 import com.accenture.login.model.UsuarioRequest;
 import com.accenture.login.model.UsuarioResponse;
 import com.accenture.login.repository.UsuarioRepositoryImp;
+import com.accenture.login.service.UsuarioService;
 import com.accenture.login.utils.Utils;
 
 @RestController
@@ -40,7 +41,11 @@ public class LoginController extends Constantes {
 	@Autowired
 	@Qualifier("usuarioRepository")
 	private UsuarioRepositoryImp usuarioRepository;
-
+	
+	@Autowired
+	@Qualifier("usuarioService")
+	private UsuarioService usuarioService;
+	
 	@Autowired
 	@Qualifier("usuarioConverter")
 	private UsuarioConverter usuarioConverter;
@@ -49,7 +54,7 @@ public class LoginController extends Constantes {
 	@Qualifier("utils")
 	private Utils utils;
 
-	// SIN HEADER
+	// SIN VALIDACION DE HEADER
 	// Registar un usuario
 	@PostMapping("/registrarUsuario")
 	public ResponseJSON registrarUsuario(@Valid @RequestBody UsuarioRequest usuarioRequest, BindingResult bindingResult) {
@@ -59,29 +64,26 @@ public class LoginController extends Constantes {
 			resJSON.setStatus(400);
 			resJSON.setPayload(utils.obtenerMsjValidacion(bindingResult.getAllErrors()));
 		} else {
-			if (usuarioRepository.existeUsuario(usuarioRequest.getCorreo())) {
+			if (usuarioService.findUsuarioByEmail(usuarioRequest.getCorreo())) {
 				resJSON.setDescripcion("ERROR");
 				resJSON.setStatus(400);
 				Map<String, String> mapaMensajes = new HashMap<>();
 				mapaMensajes.put("mensaje", Constantes.CORREO_REGISTRADO);
 				resJSON.setPayload(mapaMensajes);
 			} else {
+				usuarioRequest.setId(UUID.randomUUID().toString());
+				//Se encripta la password
+				//usuarioRequest.setContraseña(utils.encriptarPass(usuarioRequest.getContraseña()));
 				Usuario usuario = new Usuario();
 				usuario = usuarioConverter.resquestToEntity(usuarioRequest);
-				logger.info("registrarUsuario Password Original: " + usuario.getPassword());
-				usuario.setPassword(utils.encriptarPass(usuario.getPassword()));
-				logger.info("registrarUsuario Password Encriptarda: " + usuario.getPassword());
-				usuario.setId(UUID.randomUUID().toString());
 				usuario.setCreated(new Date());
 				usuario.setModified(new Date());
 				usuario.setLast_login(new Date());
 				usuario.setToken(utils.createToken(usuario.getEmail()));
-				///
-				logger.info("registrarUsuario usuario ID: " + usuario.getId());
+
 				resJSON.setDescripcion("OK");
 				resJSON.setStatus(200);
-				resJSON.setPayload(usuarioConverter.entityToResponse(usuarioRepository.regitrarUsaurio(usuario)));
-
+				resJSON.setPayload(usuarioConverter.entityToResponse(usuarioService.registarUsuario(usuario)));
 			}
 		}
 		return resJSON;
@@ -90,12 +92,18 @@ public class LoginController extends Constantes {
 	// CON VALIDACION DE TOKEN en HEADER
 	// Listar Usuarios
 	@GetMapping("/verUsuarios/{email}")
-	public ResponseJSON listarUsuarios(@PathVariable("email") String email,
-			@RequestHeader(value = "token") String token) {
-		logger.info("listarUsuarios init");
-		logger.info("listarUsuarios email :" + email);
-		logger.info("listarUsuarios TOKEN :" + token);
-		if (utils.isTokenValid(token)) {
+	public ResponseJSON listarUsuarios(@PathVariable("email") String email, @RequestHeader(value = "token") String token) {
+		logger.info("verUsuarios init");
+		logger.info("verUsuarios email :" + email);
+		logger.info("verUsuarios TOKEN :" + token);		
+		logger.info("verUsuarios token valido");
+		resJSON.setDescripcion("OK");
+		resJSON.setStatus(200);
+		resJSON.setPayload(usuarioService.verUsuarios());
+		
+		
+		
+		/*if (utils.isTokenValid(token)) {
 			logger.info("listarUsuarios token valido");
 			resJSON.setDescripcion("OK");
 			resJSON.setStatus(200);
@@ -107,7 +115,7 @@ public class LoginController extends Constantes {
 			Map<String, String> mapaMensajes = new HashMap<>();
 			mapaMensajes.put("mensaje", Constantes.TOKENINVALIDO);
 			resJSON.setPayload(mapaMensajes);
-		}
+		}*/
 		return resJSON;
 	}
 
@@ -121,14 +129,15 @@ public class LoginController extends Constantes {
 			resJSON.setPayload(utils.obtenerMsjValidacion(bindingResult.getAllErrors()));
 		} else {
 			UsuarioResponse usuarioResponse = new UsuarioResponse();
-			logger.info("Login Password Original: " + loginRequest.getContraseña());
 			/*
 			 * loginRequest.setContraseña(utils.encriptarPass(loginRequest.getContraseña()))
 			 * ; logger.info("Login Password Encriptarada: " +loginRequest.getContraseña());
 			 */
-			usuarioResponse = usuarioRepository.login(loginRequest);
+			//usuarioResponse = usuarioRepository.login(loginRequest);
+			usuarioResponse = usuarioService.login(loginRequest);
 			if (usuarioResponse.getEmail() != null && usuarioResponse.getEmail() != "") {
-				usuarioRepository.actualizarFechaLogin(usuarioResponse.getEmail());
+				//usuarioRepository.actualizarFechaLogin(usuarioResponse.getEmail());
+				usuarioService.actualizarFechaLogin(usuarioResponse.getEmail());
 				if (utils.isTokenValid(token)) {
 					resJSON.setDescripcion("OK");
 					resJSON.setStatus(200);
@@ -155,8 +164,7 @@ public class LoginController extends Constantes {
 	///////////////////
 	// Eliminar un Uusario
 	@DeleteMapping("/deleteUsuario/{email}")
-	public ResponseJSON eliminarUsuario(@PathVariable("email") String email,
-			@RequestHeader(value = "token") String token) {
+	public ResponseJSON eliminarUsuario(@PathVariable("email") String email, @RequestHeader(value = "token") String token) {
 		logger.info("eliminarUsuario init");
 		logger.info("eliminarUsuario email: " + email);
 		if (utils.validarEmail(email)) {
@@ -194,6 +202,10 @@ public class LoginController extends Constantes {
 	public ResponseJSON modificarUSuario(@Valid @RequestBody UsuarioRequest usuarioRequest, BindingResult bindingResult, @RequestHeader(value = "token") String token) {
 		logger.info("modificarUSuario init");
 		if (utils.isTokenValid(token)) {
+			
+			//usuarioRepository.mo
+			
+			
 			Map<String, String> mapaMensajes = new HashMap<>();
 			resJSON.setDescripcion("OK");
 			resJSON.setStatus(200);

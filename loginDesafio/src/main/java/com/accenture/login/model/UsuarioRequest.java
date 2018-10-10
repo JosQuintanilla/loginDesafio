@@ -23,16 +23,19 @@ public class UsuarioRequest {
 	@Size(min = 6, max = 12, message = "la contraseña debe ser de largo minimo 6 y maximo 12 caracteres")
 	private String contraseña;
 	
+	private String id;
+	
 	private List<TelefonoModel> listaTelefonos;
 
 	public UsuarioRequest() {
 	}
 
-	public UsuarioRequest(String nombre, String correo, String contraseña) {
+	public UsuarioRequest(String nombre, String correo, String contraseña, String id) {
 		super();
 		this.nombre = nombre;
 		this.correo = correo;
 		this.contraseña = contraseña;
+		this.id = id;
 	}
 
 	public String getNombre() {
@@ -57,6 +60,15 @@ public class UsuarioRequest {
 
 	public void setContraseña(String contraseña) {
 		this.contraseña = contraseña;
+	}
+	
+	
+	public void setId(String id) {
+		this.id = id;
+	}
+	
+	public String getId() {
+		return id;
 	}
 
 	public List<TelefonoModel> getListaTelefonos() {

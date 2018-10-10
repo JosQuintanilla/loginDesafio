@@ -42,7 +42,7 @@ public class Utils extends Constantes {
 		try {
 			Algorithm algorithm = Algorithm.HMAC256(TOKEN_SECRET);
 			Date fechaHasta = new Date();
-			fechaHasta.setMinutes(fechaHasta.getMinutes() +3);
+			fechaHasta.setMinutes(fechaHasta.getMinutes() +TIEMPOTOKEN);
 			String token = JWT.create().withClaim("email", email).withExpiresAt(fechaHasta).withClaim("fechaCreacion", new Date()).sign(algorithm);
 			return token;
 		} catch (UnsupportedEncodingException exception) {
@@ -88,8 +88,7 @@ public class Utils extends Constantes {
 			}
 		}else {
 			return false;
-		}
-				
+		}				
 	}
 
 	public boolean validarEmail(String email) {
@@ -109,22 +108,4 @@ public class Utils extends Constantes {
 		return be.encode(password);
 	}
 	
-	/**
-	 * 
-	 * 
-	 * 
-	 * 
-	 * public String encriptar(String texto) { StandardPBEStringEncryptor encryptor
-	 * = new StandardPBEStringEncryptor();
-	 * encryptor.setPassword(Constantes.PASSWORD_JASYPT);
-	 * encryptor.setAlgorithm(Constantes.ALGORITHM_JASYPT); return
-	 * encryptor.encrypt(texto); }
-	 * 
-	 * public String desencriptar(String texto) { StandardPBEStringEncryptor
-	 * encryptor = new StandardPBEStringEncryptor();
-	 * encryptor.setPassword(Constantes.PASSWORD_JASYPT);
-	 * encryptor.setAlgorithm(Constantes.ALGORITHM_JASYPT); return
-	 * encryptor.decrypt(texto); }
-	 * 
-	 */
 }
