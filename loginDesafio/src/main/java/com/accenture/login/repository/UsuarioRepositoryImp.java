@@ -1,7 +1,5 @@
 package com.accenture.login.repository;
 
-import javax.transaction.Transactional;
-
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -38,15 +36,12 @@ public class UsuarioRepositoryImp implements UsuarioRepository {
 	
 	
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	@Transactional
+	///////////REEMPLAZADOS en USUARIOsERVICES////////////
+		
+	/**
+	 *
+	 *
+	 *@Transactional
 	public boolean eliminarUsuario(String email) {
 		logger.info("eliminarUsuario - init");
 		try {
@@ -62,13 +57,7 @@ public class UsuarioRepositoryImp implements UsuarioRepository {
 			logger.info("eliminarUsuario - ERROR: "+e.toString());
 			return false;
 		}
-	}	
-	
-	
-	///////////REEMPLAZADOS en USUARIOsERVICES////////////
-	/**
-	 *
-	 *
+	}
 	
 	@Transactional
 	public Usuario obtenerToken(String email) {

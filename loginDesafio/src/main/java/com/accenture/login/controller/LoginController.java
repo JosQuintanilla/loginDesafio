@@ -26,7 +26,6 @@ import com.accenture.login.entity.Usuario;
 import com.accenture.login.model.LoginRequest;
 import com.accenture.login.model.ResponseJSON;
 import com.accenture.login.model.UsuarioRequest;
-import com.accenture.login.repository.UsuarioRepositoryImp;
 import com.accenture.login.service.UsuarioService;
 import com.accenture.login.utils.Utils;
 
@@ -36,10 +35,6 @@ public class LoginController extends Constantes {
 
 	final static Logger logger = Logger.getLogger(LoginController.class);
 	private final ResponseJSON resJSON = new ResponseJSON();
-
-	@Autowired
-	@Qualifier("usuarioRepository")
-	private UsuarioRepositoryImp usuarioRepository;
 	
 	@Autowired
 	@Qualifier("usuarioService")
@@ -63,7 +58,7 @@ public class LoginController extends Constantes {
 			resJSON.setStatus(400);
 			resJSON.setPayload(utils.obtenerMsjValidacion(bindingResult.getAllErrors()));
 		} else {
-			if (usuarioService.findUsuarioByEmail(usuarioRequest.getCorreo())) {
+			if (usuarioService.existeUsuarioByEmail(usuarioRequest.getCorreo())) {
 				resJSON.setDescripcion("ERROR");
 				resJSON.setStatus(400);
 				Map<String, String> mapaMensajes = new HashMap<>();
@@ -157,30 +152,36 @@ public class LoginController extends Constantes {
 	public ResponseJSON eliminarUsuario(@PathVariable("email") String email, @RequestHeader(value = "token") String token) {
 		logger.info("eliminarUsuario init");
 		logger.info("eliminarUsuario email: " + email);
-		if (utils.validarEmail(email)) {
-			if (utils.isTokenValid(token)) {
+		if (utils.isTokenValid(token)) {
+			logger.info("eliminarUsuario Token Valido");
+			if (utils.validarEmail(email)) {
+				logger.info("eliminarUsuario Email Valido");
+				//Busco el usaurio por email
+				Usuario usuario = usuarioService.buscarUsuarioByEmail(email);
 				Map<String, String> mapaMensajes = new HashMap<>();
-				resJSON.setDescripcion("OK");
-				resJSON.setStatus(200);
-				if (usuarioRepository.eliminarUsuario(email)) {
+				if(usuarioService.eliminarUSuario(usuario)) {
+					resJSON.setDescripcion("OK");
+					resJSON.setStatus(200);
 					mapaMensajes.put("mensaje", "Usuario Eliminado");
-				} else {
+				}else {
+					resJSON.setDescripcion("ERROR");
+					resJSON.setStatus(400);
 					mapaMensajes.put("mensaje", "Error al eliminar el usuario de correo: " + email);
-				}
-				resJSON.setPayload(mapaMensajes);
+				}				
 			} else {
-				logger.info("eliminarUsuario token invalido");
+				logger.info("eliminarUsuario Email invalido");
 				resJSON.setDescripcion("ERROR");
 				resJSON.setStatus(400);
 				Map<String, String> mapaMensajes = new HashMap<>();
-				mapaMensajes.put("mensaje", Constantes.TOKENINVALIDO);
+				mapaMensajes.put("mensaje", Constantes.CORREO_SIN_FORMATO);
 				resJSON.setPayload(mapaMensajes);
-			}
+			}			
 		} else {
+			logger.info("eliminarUsuario token invalido");
 			resJSON.setDescripcion("ERROR");
 			resJSON.setStatus(400);
 			Map<String, String> mapaMensajes = new HashMap<>();
-			mapaMensajes.put("mensaje", Constantes.CORREO_SIN_FORMATO);
+			mapaMensajes.put("mensaje", Constantes.TOKENINVALIDO);
 			resJSON.setPayload(mapaMensajes);
 		}
 		return resJSON;
@@ -199,11 +200,11 @@ public class LoginController extends Constantes {
 			Map<String, String> mapaMensajes = new HashMap<>();
 			resJSON.setDescripcion("OK");
 			resJSON.setStatus(200);
-			if (usuarioRepository.eliminarUsuario("")) {
-				mapaMensajes.put("mensaje", "Usuario Eliminado");
-			} else {
-				mapaMensajes.put("mensaje", "Error al eliminar el usuario de correo: " + "");
-			}
+			//if (usuarioRepository.eliminarUsuario("")) {
+			//	mapaMensajes.put("mensaje", "Usuario Eliminado");
+			//} else {
+			//	mapaMensajes.put("mensaje", "Error al eliminar el usuario de correo: " + "");
+			//}
 			resJSON.setPayload(mapaMensajes);
 		} else {
 			logger.info("eliminarUsuario token invalido");

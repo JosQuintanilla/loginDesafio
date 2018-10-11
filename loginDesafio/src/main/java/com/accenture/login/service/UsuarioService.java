@@ -38,7 +38,7 @@ public class UsuarioService {
 		return usuarioConverter.listaUsuariosToListUsuarioResponse(userRepositoryJPA.findAll());
 	}
 	
-	public boolean findUsuarioByEmail(String email) {
+	public boolean existeUsuarioByEmail(String email) {
 		logger.info("findUsuarioByEmail - init");
 		Boolean existeEmail = false;
 		Usuario usuario = new Usuario();
@@ -47,6 +47,11 @@ public class UsuarioService {
 			existeEmail = true;
 		}
 		return existeEmail;
+	}
+	
+	public Usuario buscarUsuarioByEmail(String email) {
+		logger.info("findUsuarioByEmail - init");
+		return userRepositoryJPA.findUsuarioByEmail(email);
 	}
 	
 	public Usuario registarUsuario(Usuario usuario) {
@@ -75,6 +80,15 @@ public class UsuarioService {
 		return userRepositoryJPA.loginUser(loginRequest.getCorreo(), loginRequest.getContraseña());
 	}
 	
+	public Boolean eliminarUSuario(Usuario usuario) {
+		List<Telefono> listaTelefono = new ArrayList<>(usuario.getPhones());
+		usuario.setPhones(new ArrayList<Telefono>());	
+		for(Telefono telefono: listaTelefono) {
+			telefonoRepositoryJPA.delete(telefono);
+		}
+		userRepositoryJPA.delete(usuario);
+		return true;
+	}
 	/**
 	
 	
