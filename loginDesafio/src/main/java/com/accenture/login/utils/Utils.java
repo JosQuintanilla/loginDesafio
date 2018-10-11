@@ -59,7 +59,6 @@ public class Utils extends Constantes {
 			Algorithm algorithm = Algorithm.HMAC256(TOKEN_SECRET);
 			JWTVerifier verifier = JWT.require(algorithm).build();
 			DecodedJWT jwt = verifier.verify(token);
-			Date expiresAt = jwt.getExpiresAt();
 			return jwt.getClaim("email").asString();
 		} catch (UnsupportedEncodingException exception) {
 			exception.printStackTrace();

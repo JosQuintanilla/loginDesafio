@@ -23,5 +23,5 @@ public interface UserRepositoryJPA  extends JpaRepository<Usuario, Long>{
 	
 	@Query("select u from Usuario u where u.email = :email and u.password = :password order by u.id")
 	public Usuario loginUser(@Param("email") String email, @Param("password") String password);
-		
+	
 }

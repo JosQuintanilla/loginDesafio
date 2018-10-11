@@ -89,9 +89,5 @@ public class UsuarioService {
 		userRepositoryJPA.delete(usuario);
 		return true;
 	}
-	/**
 	
-	
-	 */
-
 }

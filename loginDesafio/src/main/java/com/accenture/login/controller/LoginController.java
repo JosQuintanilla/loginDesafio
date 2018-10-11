@@ -112,17 +112,16 @@ public class LoginController extends Constantes {
 			resJSON.setStatus(401);
 			resJSON.setPayload(utils.obtenerMsjValidacion(bindingResult.getAllErrors()));
 		} else {
-			/*
-			 * loginRequest.setContraseña(utils.encriptarPass(loginRequest.getContraseña()))
-			 * ; logger.info("Login Password Encriptarada: " +loginRequest.getContraseña());
-			 */
-			Usuario usuario = usuarioService.login(loginRequest);
 			//Valido el Token
 			if (utils.isTokenValid(token)) {
-				//Actualizo fecha de Logeo
-				if (usuario.getEmail() != null && usuario.getEmail() != "") {
+				/*
+				 * loginRequest.setContraseña(utils.encriptarPass(loginRequest.getContraseña()))
+				 * ; logger.info("Login Password Encriptarada: " +loginRequest.getContraseña());
+				 */
+				Usuario usuario = usuarioService.login(loginRequest);
+				if (usuario != null && usuario.getEmail() != null && usuario.getEmail() != "") {
+					//Actualizo fecha de Logeo
 					usuario.setLast_login(new Date());
-					////////
 					usuarioService.actualizarUsuario(usuario);				
 					resJSON.setDescripcion("OK");
 					resJSON.setStatus(200);
@@ -146,7 +145,6 @@ public class LoginController extends Constantes {
 		return resJSON;
 	}
 
-	/////////MODIFICAR//////////
 	// Eliminar un Uusario
 	@DeleteMapping("/deleteUsuario/{email}")
 	public ResponseJSON eliminarUsuario(@PathVariable("email") String email, @RequestHeader(value = "token") String token) {
@@ -187,32 +185,43 @@ public class LoginController extends Constantes {
 		return resJSON;
 	}
 
-	///////////////////
 	// Modificar un Usario
 	@PostMapping("/modificarUsuario")
 	public ResponseJSON modificarUSuario(@Valid @RequestBody UsuarioRequest usuarioRequest, BindingResult bindingResult, @RequestHeader(value = "token") String token) {
 		logger.info("modificarUSuario init");
-		if (utils.isTokenValid(token)) {
-			
-			//usuarioRepository.mo
-			
-			
-			Map<String, String> mapaMensajes = new HashMap<>();
-			resJSON.setDescripcion("OK");
-			resJSON.setStatus(200);
-			//if (usuarioRepository.eliminarUsuario("")) {
-			//	mapaMensajes.put("mensaje", "Usuario Eliminado");
-			//} else {
-			//	mapaMensajes.put("mensaje", "Error al eliminar el usuario de correo: " + "");
-			//}
-			resJSON.setPayload(mapaMensajes);
-		} else {
-			logger.info("eliminarUsuario token invalido");
+		if (bindingResult.hasErrors()) {
 			resJSON.setDescripcion("ERROR");
 			resJSON.setStatus(400);
-			Map<String, String> mapaMensajes = new HashMap<>();
-			mapaMensajes.put("mensaje", Constantes.TOKENINVALIDO);
-			resJSON.setPayload(mapaMensajes);
+			resJSON.setPayload(utils.obtenerMsjValidacion(bindingResult.getAllErrors()));
+		}else {
+			if (utils.isTokenValid(token)) {	
+				logger.info("modificarUSuario token valido");
+				//Obtengo el usuario desde Base
+				Usuario usuario = usuarioService.buscarUsuarioByEmail(usuarioRequest.getCorreo());
+				//Mapeo los campos nuevos 
+				usuario.setName(usuarioRequest.getNombre());
+				usuario.setPassword(usuarioRequest.getContraseña());
+				usuario.setModified(new Date());
+				usuario.setPhones(usuarioConverter.teleFonoModelToEntity(usuarioRequest.getListaTelefonos(), usuario));
+				logger.info("modificarUSuario antes de actulizar");
+				usuarioService.actualizarUsuario(usuario);
+				logger.info("modificarUSuario despues de actulizar");
+				resJSON.setDescripcion("OK");
+				resJSON.setStatus(200);
+				//if (usuarioRepository.eliminarUsuario("")) {
+				//	mapaMensajes.put("mensaje", "Usuario Eliminado");
+				//} else {
+				//	mapaMensajes.put("mensaje", "Error al eliminar el usuario de correo: " + "");
+				//}
+				resJSON.setPayload(usuarioConverter.entityToResponse(usuario));
+			} else {
+				logger.info("modificarUSuario token invalido");
+				resJSON.setDescripcion("ERROR");
+				resJSON.setStatus(400);
+				Map<String, String> mapaMensajes = new HashMap<>();
+				mapaMensajes.put("mensaje", Constantes.TOKENINVALIDO);
+				resJSON.setPayload(mapaMensajes);
+			}
 		}
 		return resJSON;
 	}

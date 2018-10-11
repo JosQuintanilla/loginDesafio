@@ -15,6 +15,22 @@ import com.accenture.login.model.UsuarioResponse;
 
 @Component("usuarioConverter")
 public class UsuarioConverter {
+	
+	
+	public List<Telefono> teleFonoModelToEntity(List<TelefonoModel> listaTelefonoModel, Usuario usuario){
+		List<Telefono> listaTelefono = new ArrayList<>();
+		if(listaTelefonoModel != null) {
+			for(TelefonoModel telefonoModel: listaTelefonoModel) {
+				Telefono telefono = new Telefono();
+				telefono.setNumber(telefonoModel.getNumber());
+				telefono.setContrycode(telefonoModel.getContrycode());
+				telefono.setCitycode(telefonoModel.getCitycode());
+				telefono.setUsuario(usuario);
+				listaTelefono.add(telefono);
+			}
+		}		
+		return listaTelefono;
+	}
 		
 	public List<UsuarioResponse> listaUsuariosToListUsuarioResponse(List<Usuario> listarUsuarios){
 		List<UsuarioResponse> listaUsuarios = new ArrayList<>();
