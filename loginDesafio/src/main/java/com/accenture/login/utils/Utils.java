@@ -7,14 +7,11 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.ObjectError;
 
 import com.accenture.login.constant.Constantes;
-import com.accenture.login.repository.UsuarioRepositoryImp;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -25,10 +22,6 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 @Component("utils")
 public class Utils extends Constantes {
 	
-	@Autowired
-	@Qualifier("usuarioRepository")
-	private UsuarioRepositoryImp usuarioRepository;
-
 	public List<String> obtenerMsjValidacion(List<ObjectError> listErrores) {
 		List<String> listaErrores = new ArrayList<>();
 		for (ObjectError error : listErrores) {

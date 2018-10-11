@@ -11,7 +11,5 @@ public class Pruebas {
 		System.out.println("Token: "+token);
 		
 		System.out.println(utils.isTokenValid(token));
-
 	}
-
 }
