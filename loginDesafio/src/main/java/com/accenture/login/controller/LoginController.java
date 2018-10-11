@@ -26,7 +26,6 @@ import com.accenture.login.entity.Usuario;
 import com.accenture.login.model.LoginRequest;
 import com.accenture.login.model.ResponseJSON;
 import com.accenture.login.model.UsuarioRequest;
-import com.accenture.login.model.UsuarioResponse;
 import com.accenture.login.repository.UsuarioRepositoryImp;
 import com.accenture.login.service.UsuarioService;
 import com.accenture.login.utils.Utils;
@@ -80,7 +79,6 @@ public class LoginController extends Constantes {
 				usuario.setModified(new Date());
 				usuario.setLast_login(new Date());
 				usuario.setToken(utils.createToken(usuario.getEmail()));
-
 				resJSON.setDescripcion("OK");
 				resJSON.setStatus(200);
 				resJSON.setPayload(usuarioConverter.entityToResponse(usuarioService.registarUsuario(usuario)));
@@ -94,20 +92,11 @@ public class LoginController extends Constantes {
 	@GetMapping("/verUsuarios/{email}")
 	public ResponseJSON listarUsuarios(@PathVariable("email") String email, @RequestHeader(value = "token") String token) {
 		logger.info("verUsuarios init");
-		logger.info("verUsuarios email :" + email);
-		logger.info("verUsuarios TOKEN :" + token);		
-		logger.info("verUsuarios token valido");
-		resJSON.setDescripcion("OK");
-		resJSON.setStatus(200);
-		resJSON.setPayload(usuarioService.verUsuarios());
-		
-		
-		
-		/*if (utils.isTokenValid(token)) {
+		if (utils.isTokenValid(token)) {
 			logger.info("listarUsuarios token valido");
 			resJSON.setDescripcion("OK");
 			resJSON.setStatus(200);
-			resJSON.setPayload(usuarioRepository.listarUsuarios());
+			resJSON.setPayload(usuarioService.verUsuarios());
 		} else {
 			logger.info("listarUsuarios token invalido");
 			resJSON.setDescripcion("ERROR");
@@ -115,7 +104,7 @@ public class LoginController extends Constantes {
 			Map<String, String> mapaMensajes = new HashMap<>();
 			mapaMensajes.put("mensaje", Constantes.TOKENINVALIDO);
 			resJSON.setPayload(mapaMensajes);
-		}*/
+		}
 		return resJSON;
 	}
 
@@ -128,40 +117,41 @@ public class LoginController extends Constantes {
 			resJSON.setStatus(401);
 			resJSON.setPayload(utils.obtenerMsjValidacion(bindingResult.getAllErrors()));
 		} else {
-			UsuarioResponse usuarioResponse = new UsuarioResponse();
 			/*
 			 * loginRequest.setContraseña(utils.encriptarPass(loginRequest.getContraseña()))
 			 * ; logger.info("Login Password Encriptarada: " +loginRequest.getContraseña());
 			 */
-			//usuarioResponse = usuarioRepository.login(loginRequest);
-			usuarioResponse = usuarioService.login(loginRequest);
-			if (usuarioResponse.getEmail() != null && usuarioResponse.getEmail() != "") {
-				//usuarioRepository.actualizarFechaLogin(usuarioResponse.getEmail());
-				usuarioService.actualizarFechaLogin(usuarioResponse.getEmail());
-				if (utils.isTokenValid(token)) {
+			Usuario usuario = usuarioService.login(loginRequest);
+			//Valido el Token
+			if (utils.isTokenValid(token)) {
+				//Actualizo fecha de Logeo
+				if (usuario.getEmail() != null && usuario.getEmail() != "") {
+					usuario.setLast_login(new Date());
+					////////
+					usuarioService.actualizarUsuario(usuario);				
 					resJSON.setDescripcion("OK");
 					resJSON.setStatus(200);
-					resJSON.setPayload(usuarioResponse);
+					resJSON.setPayload(usuarioConverter.entityToResponse(usuario));
 				} else {
-					logger.info("Login token invalido");
 					resJSON.setDescripcion("ERROR");
-					resJSON.setStatus(400);
+					resJSON.setStatus(401);
 					Map<String, String> mapaMensajes = new HashMap<>();
-					mapaMensajes.put("mensaje", Constantes.TOKENINVALIDO);
+					mapaMensajes.put("mensaje", Constantes.NOT_LOGIN);
 					resJSON.setPayload(mapaMensajes);
 				}
 			} else {
+				logger.info("Login token invalido");
 				resJSON.setDescripcion("ERROR");
-				resJSON.setStatus(401);
+				resJSON.setStatus(400);
 				Map<String, String> mapaMensajes = new HashMap<>();
-				mapaMensajes.put("mensaje", Constantes.NOT_LOGIN);
+				mapaMensajes.put("mensaje", Constantes.TOKENINVALIDO);
 				resJSON.setPayload(mapaMensajes);
 			}
 		}
 		return resJSON;
 	}
 
-	///////////////////
+	/////////MODIFICAR//////////
 	// Eliminar un Uusario
 	@DeleteMapping("/deleteUsuario/{email}")
 	public ResponseJSON eliminarUsuario(@PathVariable("email") String email, @RequestHeader(value = "token") String token) {

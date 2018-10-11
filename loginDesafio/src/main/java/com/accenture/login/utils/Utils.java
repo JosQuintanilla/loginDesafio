@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.ObjectError;
 
 import com.accenture.login.constant.Constantes;
-import com.accenture.login.entity.Usuario;
 import com.accenture.login.repository.UsuarioRepositoryImp;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
@@ -60,9 +59,7 @@ public class Utils extends Constantes {
 			Algorithm algorithm = Algorithm.HMAC256(TOKEN_SECRET);
 			JWTVerifier verifier = JWT.require(algorithm).build();
 			DecodedJWT jwt = verifier.verify(token);
-			System.out.println("Email: "+jwt.getClaim("email").asString());
 			Date expiresAt = jwt.getExpiresAt();
-			System.out.println("Fecha Exp: "+expiresAt);
 			return jwt.getClaim("email").asString();
 		} catch (UnsupportedEncodingException exception) {
 			exception.printStackTrace();
@@ -75,6 +72,12 @@ public class Utils extends Constantes {
 		}
 	}
 
+	public boolean isTokenValid(String token) {
+		String email = this.getEmailFromToken(token);
+		return email != null;
+	}
+	//Eliminado
+	/**
 	public boolean isTokenValid(String token) {
 		String email = this.getEmailFromToken(token);
 		//Valido que sea el mismo token que esta en base de datos		
@@ -90,6 +93,9 @@ public class Utils extends Constantes {
 			return false;
 		}				
 	}
+	 * @param email
+	 * @return
+	 */
 
 	public boolean validarEmail(String email) {
 		Pattern pattern = Pattern.compile("^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$");

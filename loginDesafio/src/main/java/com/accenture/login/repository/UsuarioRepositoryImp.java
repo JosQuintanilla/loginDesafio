@@ -1,7 +1,5 @@
 package com.accenture.login.repository;
 
-import java.util.List;
-
 import javax.transaction.Transactional;
 
 import org.apache.log4j.Logger;
@@ -11,21 +9,18 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import com.accenture.login.converter.UsuarioConverter;
-import com.accenture.login.converter.UsuarioMapper;
-import com.accenture.login.entity.Telefono;
-import com.accenture.login.entity.Usuario;
 
 @Repository("usuarioRepository")
 public class UsuarioRepositoryImp implements UsuarioRepository {
 	
-	private static final String CreateUsuario = "INSERT INTO usuario (id, created, modified, last_login, token, name, email, password)	VALUES (?,?,?,?,?,?,?,?)";
-	private static final String InsertTelefonos = "INSERT INTO telefono ( number, citycode, contrycode, id)	VALUES (?,?,?,?)";
+	//private static final String CreateUsuario = "INSERT INTO usuario (id, created, modified, last_login, token, name, email, password)	VALUES (?,?,?,?,?,?,?,?)";
+	//private static final String InsertTelefonos = "INSERT INTO telefono ( number, citycode, contrycode, id)	VALUES (?,?,?,?)";
 	//private static final String ListarUsuarios = "select u.name, u.email, u.password, u.token, t.number, t.citycode, t.contrycode from usuario as u, telefono as t where u.id = t.id  group by u.id, u.name, u.email, u.token, t.number, t.citycode, t.contrycode";
 	private static final String EliminarUsuario = "delete  usuario, telefono  from usuario u JOIN telefono t on u.email = t.email where u.email = ?";
 	//private static final String BuscarUsuarioXEmail = "select id, created, modified, last_login, token, name, email, password from usuario where email =?";
 	//private static final String Login = "select u.name, u.email, u.password, u.token, t.number, t.citycode, t.contrycode from usuario as u, telefono as t where u.id = t.id AND u.email =? and u.password = ?";
 	//private static final String ActualizarFechaLogin = "update usuario set last_login = ? where email = ?";
-	private static final String ObtenerTokenFromEmail = "select id, created, modified, last_login, token, name, email, password from usuario where email =?";
+	//private static final String ObtenerTokenFromEmail = "select id, created, modified, last_login, token, name, email, password from usuario where email =?";
 	//private static final String ModificarUsuario = "select id, created, modified, last_login, token, name, email, password from usuario where email =?";
 	
 	private final static Logger logger = Logger.getLogger(UsuarioRepositoryImp.class);
@@ -42,31 +37,11 @@ public class UsuarioRepositoryImp implements UsuarioRepository {
 
 	
 	
-	@Transactional
-	public void registrarTelefonos(List<Telefono> list, String id) {
-		logger.info("registrarTelefonos - init");
-		try {
-			for (Telefono telefono : list) {
-				jdbcTemplate.update(InsertTelefonos, telefono.getNumber().toString(), telefono.getCitycode().toString(), telefono.getContrycode().toString(), id);
-			}			 
-		} catch (Exception e) {
-			logger.info("registrarTelefonos Error: "+e.toString());
-			e.printStackTrace();
-		}
-	}
 	
 	
 	
-	@Transactional
-	public void modificarUsuario(Usuario usuario) {
-		logger.info("save - init");
-		try {
-			jdbcTemplate.update(CreateUsuario, usuario.getId(), usuario.getCreated(), usuario.getModified(), usuario.getLast_login(), usuario.getToken(), usuario.getName(), usuario.getEmail(), usuario.getPassword()); 
-		} catch (Exception e) {
-			logger.info("save - ERROR: "+e.toString());
-			e.printStackTrace();
-		}
-	}
+	
+	
 	
 	
 	
@@ -87,8 +62,13 @@ public class UsuarioRepositoryImp implements UsuarioRepository {
 			logger.info("eliminarUsuario - ERROR: "+e.toString());
 			return false;
 		}
-	}
+	}	
 	
+	
+	///////////REEMPLAZADOS en USUARIOsERVICES////////////
+	/**
+	 *
+	 *
 	
 	@Transactional
 	public Usuario obtenerToken(String email) {
@@ -101,14 +81,32 @@ public class UsuarioRepositoryImp implements UsuarioRepository {
 			logger.info("obtenerToken - ERROR: "+e.toString());
 			return usuario;
 		}
+	} 
+	
+	@Transactional
+	public void modificarUsuario(Usuario usuario) {
+		logger.info("save - init");
+		try {
+			jdbcTemplate.update(CreateUsuario, usuario.getId(), usuario.getCreated(), usuario.getModified(), usuario.getLast_login(), usuario.getToken(), usuario.getName(), usuario.getEmail(), usuario.getPassword()); 
+		} catch (Exception e) {
+			logger.info("save - ERROR: "+e.toString());
+			e.printStackTrace();
+		}
 	}
 	
-	
-	
-	
-	///////////REEMPLAZADOS en USUARIOsERVICES////////////
-	/**
-	 * 
+	@Transactional
+	public void registrarTelefonos(List<Telefono> list, String id) {
+		logger.info("registrarTelefonos - init");
+		try {
+			for (Telefono telefono : list) {
+				jdbcTemplate.update(InsertTelefonos, telefono.getNumber().toString(), telefono.getCitycode().toString(), telefono.getContrycode().toString(), id);
+			}			 
+		} catch (Exception e) {
+			logger.info("registrarTelefonos Error: "+e.toString());
+			e.printStackTrace();
+		}
+	}
+	  
 	public void actualizarFechaLogin(String email) {
 		logger.info("actualizarFechaLogin - init");
 		try {

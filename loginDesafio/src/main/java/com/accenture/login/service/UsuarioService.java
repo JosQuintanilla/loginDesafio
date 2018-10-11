@@ -1,7 +1,6 @@
 package com.accenture.login.service;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -62,27 +61,23 @@ public class UsuarioService {
 		return usuario;
 	}
 	
-	public UsuarioResponse login(LoginRequest loginRequest) {
-		logger.info("login - init");
-		return usuarioConverter.entityToResponse(userRepositoryJPA.loginUser(loginRequest.getCorreo(), loginRequest.getContraseña()));
+	public void actualizarUsuario(Usuario usuario) {
+		logger.info("actualizarUsuario - init");
+		List<Telefono> listaTelefono = new ArrayList<>(usuario.getPhones());
+		usuario.setPhones(new ArrayList<Telefono>());	
+		userRepositoryJPA.save(usuario);
+		usuario.setPhones(listaTelefono);		
+		logger.info("actualizarUsuario - end");	
 	}
 	
-	public void actualizarFechaLogin(String email) {
-		logger.info("actualizarFechaLogin - init");
-		logger.info("actualizarFechaLogin - id: "+email);
-		userRepositoryJPA.actualziarFechaLogin(new Date(),email);
+	public Usuario login(LoginRequest loginRequest) {
+		logger.info("login - init");
+		return userRepositoryJPA.loginUser(loginRequest.getCorreo(), loginRequest.getContraseña());
 	}
 	
 	/**
-	public void actualizarFechaLogin(String email) {
-		logger.info("actualizarFechaLogin - init");
-		try {
-			jdbcTemplate.update(ActualizarFechaLogin, new Date(), email);
-		} catch (Exception e) {
-			logger.info("actualizarFechaLogin - ERROR: "+e.toString());
-			e.printStackTrace();
-		}
-	}
+	
+	
 	 */
 
 }

@@ -1,5 +1,6 @@
 package com.accenture.login.entity;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
@@ -9,10 +10,24 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @Entity
 @Table(name = "usuario")
-public class Usuario {
+//To suppress serializing properties with null values
+@JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
+//Ignoring new fields on JSON objects
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class Usuario implements Serializable{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	@Id
 	@Column(name = "id")
@@ -21,10 +36,12 @@ public class Usuario {
 	@Column(name = "created")
 	private Date created;
 
-	@Column(name = "modified")
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "modified", columnDefinition = "DATETIME")
 	private Date modified;
 
-	@Column(name = "last_login")
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "last_login", columnDefinition = "DATETIME")
 	private Date last_login;
 
 	@Column(name = "token")
