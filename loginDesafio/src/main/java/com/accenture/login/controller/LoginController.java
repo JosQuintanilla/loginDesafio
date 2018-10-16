@@ -10,6 +10,7 @@ import javax.validation.Valid;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -68,8 +69,12 @@ public class LoginController extends Constantes {
 				usuarioRequest.setId(UUID.randomUUID().toString());
 				//Se encripta la password
 				//usuarioRequest.setContraseña(utils.encriptarPass(usuarioRequest.getContraseña()));
+				logger.info("registrarUsuario usuarioRequest Password Original: "+usuarioRequest.getContraseña());
+				usuarioRequest.setContraseña(BCrypt.hashpw(usuarioRequest.getContraseña(), BCrypt.gensalt()));
+				logger.info("registrarUsuario usuarioRequest Password Cryp: "+usuarioRequest.getContraseña());
 				Usuario usuario = new Usuario();
 				usuario = usuarioConverter.resquestToEntity(usuarioRequest);
+				logger.info("registrarUsuario usuario Password Cryp: "+usuario.getPassword());
 				usuario.setCreated(new Date());
 				usuario.setModified(new Date());
 				usuario.setLast_login(new Date());
